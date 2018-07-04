@@ -70,13 +70,13 @@ module.exports = function zipkinClient(
     }
 
     const promise = actualFn.call(this, config, values, callback);
-    return promise.then(() => {
+    promise.on('end', () => {
       annotateSuccess(id);
-      return promise;
-    }, (error) => {
-      annotateError(id, error);
-      return promise;
     });
+    promise.on('error', (error) => {
+      annotateError(id, error);
+    });
+    return promise;
   };
 
   return ZipkinPostgres;
